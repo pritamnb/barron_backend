@@ -6,7 +6,10 @@ const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const { Words, barronSchema, validate } = require('../models/words');
-
+const { IkWords, IkWordsSchema, validateWord } = require('../models/ik');
+const { IdkWords, IdkWordsSchema } = require('../models/idk');
+const { BookmarkSchema, Bookmarks } = require('../models/bookmark');
+// code
 router.get('/', async (req, res) => {
   // throw new Error('Could not get the genres');
   const words = await Words.find();

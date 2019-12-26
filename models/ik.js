@@ -14,18 +14,24 @@ const IkWordsSchema = new mongoose.Schema({
 });
 const IkWords = mongoose.model('IkWords', IkWordsSchema);
 async function addIkWords(wordId) {
-  const word = await Words.findById(wordId);
-  if (!word) return console.log('Invalid word id');
-  const IkWord = new IkWords({
+  console.log(wordId);
+
+  const searchWord = await Words.findById(wordId);
+  console.log('searched word from the list::', searchWord);
+
+  if (!searchWord) return console.log('Invalid word id');
+  let IkWord = new IkWords({
     word: {
       _id: wordId,
-      word: word.name,
-      meaning: word.meaning
+      word: searchWord['word'],
+      meaning: searchWord['meaning']
     },
     count: 1
   });
+  IkWord = await IkWord.save();
+  console.log(IkWord);
 }
-addIkWords('5df27c826362540f2419c590');
+// addIkWords('5df27c826362540f2419c591');
 function validateWord(word) {
   const schema = {
     genreId: Joi.ObjectId().required(),
@@ -39,4 +45,4 @@ function validateWord(word) {
 
 exports.IkWords = IkWords;
 exports.IkWordsSchema = IkWordsSchema;
-exports.validate = validateWord;
+exports.validateWord = validateWord;
