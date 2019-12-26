@@ -28,7 +28,7 @@ async function addBookmarkEntry(wordId) {
   bookmarkWords = await bookmarkWords.save();
   console.log('bookmarked result on save', bookmarkWords);
 }
-addBookmarkEntry('5df27c826362540f2419c595');
+// addBookmarkEntry('5df27c826362540f2419c595');
 // validation
 function validateBookmarkeWord(word) {
   const schema = {

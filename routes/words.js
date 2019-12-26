@@ -6,39 +6,33 @@ const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const { Words, barronSchema, validate } = require('../models/words');
-const { IkWords, IkWordsSchema, validateWord } = require('../models/ik');
-const { IdkWords, IdkWordsSchema } = require('../models/idk');
-const { BookmarkSchema, Bookmarks } = require('../models/bookmark');
 // code
 router.get('/', async (req, res) => {
   // throw new Error('Could not get the genres');
-  const words = await Words.find();
+  const words = await Words.find().select({ word: 1, meaning: 1 });
   // console.log('**********', words.length);
 
   res.send(words);
 });
 
-router.post('/', async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+router.get('/a', async (req, res) => {
+  // const list = ['A', 'B', 'Z'];
+  const list = ['a', 'b', 'z'];
 
-  let words = new Words({ WORD: req.body.name });
-  words = await words.save();
-  res.send(words);
-});
+  let regEx = [];
+  let words;
+  for (let itr = 0; itr < list.length; itr++) {
+    regEx[itr] = new RegExp('^' + list[itr], 'i');
+  }
+  console.log(regEx);
 
-router.delete('/:id', async (req, res) => {
-  const words = await Words.findByIdAndRemove(req.params.id);
+  // const words = await Words.findById(req.params.id);
 
-  if (!words)
-    return res.status(404).send('The words with the given ID was not found.');
-
-  res.send(words);
-});
-
-router.get('/:id', async (req, res) => {
-  const words = await Words.findById(req.params.id);
-
+  words = await Words.find({
+    word: { $in: regEx }
+  });
+  // console.log('searched words', words);
+  // }
   if (!words)
     return res.status(404).send('The words with the given ID was not found.');
 

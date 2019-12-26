@@ -13,13 +13,25 @@ const barronSchema = new mongoose.Schema({
   meaning: {
     type: String,
     required: true
+  },
+  ik: {
+    type: Number,
+    required: true
+  },
+  idk: {
+    type: Number,
+    required: true
+  },
+  bookmarked: {
+    type: Boolean,
+    required: true
   }
 });
 const Words = mongoose.model('Words', barronSchema);
 async function getEntries() {
   const words = await Words.find();
   wordLen = words.length;
-  console.log(wordLen);
+  console.log('entries from db-----', wordLen);
   // pushWords();
 }
 
@@ -30,19 +42,29 @@ barronList('./readFile/barrons_333.json', (err, words) => {
   }
   stringifyWords = words;
   // stringifyWords = JSON.stringify(words, null, 2);
-  console.log('stringified length', stringifyWords.length);
+  wordLen = stringifyWords.length;
+  console.log('stringified length-----', wordLen);
+  // pushWords();
 });
 async function pushWords() {
   let barron = [];
   let words = {};
-
-  for (let i = 0; i < stringifyWords.length; i++) {
+  let ikCount = 0;
+  let idkCount = 0;
+  let bookmarked = false;
+  for (let i = 0; i < wordLen; i++) {
     barron.push(stringifyWords[i]);
   }
   barron.forEach(async w => {
-    words = new Words({ word: w['WORD'], meaning: w['MEANING'] });
-    console.log(words);
+    words = new Words({
+      word: w['WORD'],
+      meaning: w['MEANING'],
+      ik: ikCount,
+      idk: idkCount,
+      bookmarked: bookmarked
+    });
     words = await words.save();
+    console.log(words);
   });
 }
 getEntries();
