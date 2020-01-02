@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/filter', async (req, res) => {
-  console.log('filter payload', req.body);
+  console.log('filter payload', req.body['bookmark'] === 'All');
   const payload = req.body;
 
   // const list = ['a', 'b', 'z']; // dummy
@@ -30,22 +30,49 @@ router.post('/filter', async (req, res) => {
   let order = payload.order;
   let bookmark = payload.bookmark;
 
-  for (let itr = 0; itr < list.length; itr++) {
-    regEx[itr] = new RegExp('^' + list[itr], 'i');
+  if (payload['list'][0] !== 'All') {
+    console.log('if list does not contain ALL');
+
+    for (let itr = 0; itr < list.length; itr++) {
+      regEx[itr] = new RegExp('^' + list[itr], 'i');
+    }
+    console.log(regEx);
+
+    // const words = await Words.findById(req.params.id);
+    if (bookmark !== 'All') {
+      words = await Words.find({
+        word: { $in: regEx },
+        bookmarked: bookmark
+      })
+        .sort({ word: order })
+        .select(['word', 'meaning', 'bookmarked']);
+    } else if (bookmark === 'All') {
+      words = await Words.find({
+        word: { $in: regEx }
+      })
+        .sort({ word: order })
+        .select(['word', 'meaning', 'bookmarked']);
+    }
+
+    console.log('searched words', words);
+  } else if (payload['list'][0] === 'All') {
+    console.log('if list contain ALL');
+    if (bookmark !== 'All') {
+      words = await Words.find()
+        .sort({ word: order, bookmarked: bookmark })
+        .select(['word', 'meaning', 'bookmarked']);
+    } else if (bookmark === 'All') {
+      words = await Words.find()
+        .sort({ word: order })
+        .select(['word', 'meaning', 'bookmarked']);
+    }
+
+    console.log('searched words All', words.length);
   }
-  console.log(regEx);
-
-  // const words = await Words.findById(req.params.id);
-
-  words = await Words.find({
-    word: { $in: regEx }
-  }).select(['word', 'meaning', 'bookmarked']);
-  console.log('searched words', words);
-
   if (!words)
     return res.status(404).send('The words with the given ID was not found.');
 
-  // res.send(words);
+  res.send(words);
 });
 
 router.put('/bookmark/:id', async (req, res) => {
