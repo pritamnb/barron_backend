@@ -58,8 +58,8 @@ router.post('/filter', async (req, res) => {
   } else if (payload['list'][0] === 'All') {
     console.log('if list contain ALL');
     if (bookmark !== 'All') {
-      words = await Words.find()
-        .sort({ word: order, bookmarked: bookmark })
+      words = await Words.find({ bookmarked: bookmark })
+        .sort({ word: order })
         .select(['word', 'meaning', 'bookmarked']);
     } else if (bookmark === 'All') {
       words = await Words.find()
@@ -93,6 +93,22 @@ router.put('/bookmark/:id', async (req, res) => {
       .status(404)
       .send('The word with the given id could not be found');
   res.send(word);
+});
+
+router.post('/searchWord', async (req, res) => {
+  console.log(req.body['searchQuery']);
+  let words;
+  let regEx;
+  regEx = new RegExp('^' + req.body['searchQuery'], 'i');
+
+  words = await Words.find({
+    word: { $in: regEx }
+  }).select(['word', 'meaning', 'bookmarked']);
+  console.log('searched by starting', words);
+  if (!words) {
+    res.status(404).send('Words with the given string could not be found...');
+  }
+  res.send(words);
 });
 
 module.exports = router;
